@@ -1,5 +1,5 @@
 [package]
-name = "tsp"
+name = "traveling-salesperson"
 version = "0.1.0"
 authors = ["lbrande <lovbra00@gmail.com>"]
 
