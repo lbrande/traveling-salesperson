@@ -13,14 +13,14 @@ fn main() {
         }
         let start = Instant::now();
         min_distance_dp(0, 1, &cities, &mut HashMap::new());
-        println!(" DP took {} seconds", seconds_since(start));
+        println!(" DP took {} seconds", seconds_elapsed(start));
         let start = Instant::now();
         min_distance_naive(0, 1, &cities);
-        println!(" Naive took {} seconds", seconds_since(start));
+        println!(" Naive took {} seconds", seconds_elapsed(start));
     }
 }
 
-fn seconds_since(instant: Instant) -> f64 {
+fn seconds_elapsed(instant: Instant) -> f64 {
     let elapsed_time = instant.elapsed();
     elapsed_time.as_secs() as f64 + elapsed_time.subsec_millis() as f64 / 1000.0
 }
