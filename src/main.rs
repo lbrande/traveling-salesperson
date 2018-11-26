@@ -1,23 +1,46 @@
-use std::collections::HashMap;
+extern crate rand;
 
-fn min_distance_inner(
+use rand::random;
+use std::collections::HashMap;
+use std::time::Instant;
+
+fn main() {
+    for city_count in 0..=12 {
+        println!("{} cities:", city_count);
+        let mut cities = Vec::new();
+        for _ in 0..city_count {
+            cities.push(random());
+        }
+        let start = Instant::now();
+        min_distance_dp(0, 1, &cities, &mut HashMap::new());
+        println!(" DP took {} seconds", seconds_since(start));
+        let start = Instant::now();
+        min_distance_naive(0, 1, &cities);
+        println!(" Naive took {} seconds", seconds_since(start));
+    }
+}
+
+fn seconds_since(instant: Instant) -> f64 {
+    let elapsed_time = instant.elapsed();
+    elapsed_time.as_secs() as f64 + elapsed_time.subsec_millis() as f64 / 1000.0
+}
+
+fn min_distance_dp(
     current: usize,
-    visited: u128,
+    visited: u64,
     cities: &Vec<(f64, f64)>,
-    memo: &mut HashMap<(usize, u128), f64>,
+    memo: &mut HashMap<(usize, u64), f64>,
 ) -> f64 {
-    if visited == (1 << cities.len()) - 1 {
-        ((cities[current].0 - cities[0].0).powf(2.0) + (cities[current].1 - cities[0].1).powf(2.0))
-            .sqrt()
-    } else if let Some(&distance) = memo.get(&(current, visited)) {
+    if let Some(&distance) = memo.get(&(current, visited)) {
         distance
+    } else if visited == (1 << cities.len()) - 1 {
+        distance(cities[current], cities[0])
     } else {
         let mut min_distance = std::f64::INFINITY;
         for i in 0..cities.len() {
             if (visited >> i) & 1 == 0 {
-                let distance = min_distance_inner(i, visited | (1 << i), cities, memo)
-                    + ((cities[current].0 - cities[i].0).powf(2.0)
-                        + (cities[current].1 - cities[i].1).powf(2.0)).sqrt();
+                let distance = min_distance_dp(i, visited | (1 << i), cities, memo)
+                    + distance(cities[current], cities[i]);
                 if distance < min_distance {
                     min_distance = distance;
                 }
@@ -28,13 +51,24 @@ fn min_distance_inner(
     }
 }
 
-fn min_distance(cities: &Vec<(f64, f64)>) -> f64 {
-    min_distance_inner(0, 1, cities, &mut HashMap::new())
+fn min_distance_naive(current: usize, visited: u64, cities: &Vec<(f64, f64)>) -> f64 {
+    if visited == (1 << cities.len()) - 1 {
+        distance(cities[current], cities[0])
+    } else {
+        let mut min_distance = std::f64::INFINITY;
+        for i in 0..cities.len() {
+            if (visited >> i) & 1 == 0 {
+                let distance = min_distance_naive(i, visited | (1 << i), cities)
+                    + distance(cities[current], cities[i]);
+                if distance < min_distance {
+                    min_distance = distance;
+                }
+            }
+        }
+        min_distance
+    }
 }
 
-fn main() {
-    println!(
-        "{}",
-        min_distance(&vec![(0.0, 0.0), (-1.0, 0.0), (3.0, 0.0), (-6.0, 0.0)])
-    );
+fn distance(pos0: (f64, f64), pos1: (f64, f64)) -> f64 {
+    ((pos0.0 - pos1.0).powf(2.0) + (pos0.1 - pos1.1).powf(2.0)).sqrt()
 }
