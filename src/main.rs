@@ -20,13 +20,13 @@ fn main() {
 
 fn seconds_elapsed(instant: Instant) -> f64 {
     let elapsed_time = instant.elapsed();
-    elapsed_time.as_secs() as f64 + elapsed_time.subsec_millis() as f64 / 1000.0
+    elapsed_time.as_secs() as f64 + f64::from(elapsed_time.subsec_millis()) / 1000.0
 }
 
 fn min_distance_dp(
     current: usize,
     visited: u64,
-    cities: &Vec<(f64, f64)>,
+    cities: &[(f64, f64)],
     memo: &mut HashMap<(usize, u64), f64>,
 ) -> f64 {
     if let Some(&distance) = memo.get(&(current, visited)) {
@@ -49,7 +49,7 @@ fn min_distance_dp(
     }
 }
 
-fn min_distance_naive(current: usize, visited: u64, cities: &Vec<(f64, f64)>) -> f64 {
+fn min_distance_naive(current: usize, visited: u64, cities: &[(f64, f64)]) -> f64 {
     if visited == (1 << cities.len()) - 1 {
         distance(cities[current], cities[0])
     } else {
